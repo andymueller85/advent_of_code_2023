@@ -31,11 +31,17 @@ const digits = [
   { name: 'zero', val: '0' }
 ]
 
-const findDigit = (str, sortFn) =>
+const findFirstDigit = str =>
   digits
     .map(d => ({ digit: d.val, pos: str.indexOf(d.name) }))
     .filter(d => d.pos > -1)
-    .sort(sortFn)[0].digit
+    .sort((a, b) => a.pos - b.pos)[0].digit
+
+const findLastDigit = str =>
+  digits
+    .map(d => ({ digit: d.val, pos: str.lastIndexOf(d.name) }))
+    .filter(d => d.pos > -1)
+    .sort((a, b) => b.pos - a.pos)[0].digit
 
 const partA = fileName =>
   parseInput(fileName)
@@ -47,9 +53,7 @@ const partA = fileName =>
 
 const partB = fileName =>
   parseInput(fileName)
-    .map(l =>
-      parseInt(`${findDigit(l, (a, b) => a.pos - b.pos)}${findDigit(l, (a, b) => b.pos - a.pos)}`)
-    )
+    .map(l => parseInt(`${findFirstDigit(l)}${findLastDigit(l)}`))
     .reduce((acc, cur) => acc + cur, 0)
 
 const process = (part, sampleFile, expectedAnswer, fn) => {
