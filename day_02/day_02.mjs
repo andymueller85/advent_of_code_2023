@@ -20,28 +20,20 @@ const maxCount = (arr, color) =>
 
 const partA = fileName => {
   const gameResults = parseInput(fileName).map(game => {
-    let possible = true
+    const [rawGameNumber, rawSets] = game.split(': ')
 
-    const splitGame = game.split(': ')
+    const possible = rawSets
+      .split('; ')
+      .map(set => set.split(', ').map(cube => cube.split(' ')))
+      .flat()
+      .every(
+        ([count, color]) =>
+          (color === 'red' && count <= TOTAL_RED_COUNT) ||
+          (color === 'green' && count <= TOTAL_GREEN_COUNT) ||
+          (color === 'blue' && count <= TOTAL_BLUE_COUNT)
+      )
 
-    splitGame[1].split('; ').forEach(set => {
-      set.split(', ').forEach(cube => {
-        const [count, color] = cube.split(' ')
-        switch (color) {
-          case 'red':
-            if (count > TOTAL_RED_COUNT) possible = false
-            break
-          case 'green':
-            if (count > TOTAL_GREEN_COUNT) possible = false
-            break
-          case 'blue':
-            if (count > TOTAL_BLUE_COUNT) possible = false
-            break
-        }
-      })
-    })
-
-    return { gameNumber: splitGame[0].split(' ')[1], possible }
+    return { gameNumber: rawGameNumber.split(' ')[1], possible }
   })
 
   return gameResults.reduce((acc, cur) => acc + (cur.possible ? parseInt(cur.gameNumber) : 0), 0)
