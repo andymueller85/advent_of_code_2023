@@ -22,18 +22,19 @@ const partA = fileName => {
   const gameResults = parseInput(fileName).map(game => {
     const [rawGameNumber, rawSets] = game.split(': ')
 
-    const possible = rawSets
-      .split('; ')
-      .map(set => set.split(', ').map(cube => cube.split(' ')))
-      .flat()
-      .every(
-        ([count, color]) =>
-          (color === 'red' && count <= TOTAL_RED_COUNT) ||
-          (color === 'green' && count <= TOTAL_GREEN_COUNT) ||
-          (color === 'blue' && count <= TOTAL_BLUE_COUNT)
-      )
-
-    return { gameNumber: rawGameNumber.split(' ')[1], possible }
+    return {
+      gameNumber: rawGameNumber.split(' ')[1],
+      possible: rawSets
+        .split('; ')
+        .map(set => set.split(', ').map(cube => cube.split(' ')))
+        .flat()
+        .every(
+          ([count, color]) =>
+            (color === 'red' && count <= TOTAL_RED_COUNT) ||
+            (color === 'green' && count <= TOTAL_GREEN_COUNT) ||
+            (color === 'blue' && count <= TOTAL_BLUE_COUNT)
+        )
+    }
   })
 
   return gameResults.reduce((acc, cur) => acc + (cur.possible ? parseInt(cur.gameNumber) : 0), 0)
