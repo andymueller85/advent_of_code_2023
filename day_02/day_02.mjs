@@ -10,45 +10,13 @@ const TOTAL_RED_COUNT = 12
 const TOTAL_GREEN_COUNT = 13
 const TOTAL_BLUE_COUNT = 14
 
-const partB = fileName => {
-  const gameResults = parseInput(fileName).map(game => {
-    let redMin = 0
-    let greenMin = 0
-    let blueMin = 0
-
-    const splitGame = game.split(': ')
-
-    const [_, gameNumber] = splitGame[0].split(' ')
-    const cubeSets = splitGame[1].split('; ')
-
-    cubeSets.forEach(set => {
-      set.split(', ').forEach(cube => {
-        const [count, color] = cube.split(' ')
-        const parsedCount = parseInt(count)
-        switch (color) {
-          case 'red':
-            if (parsedCount > redMin) redMin = parsedCount
-            break
-          case 'green':
-            if (parsedCount > greenMin) greenMin = parsedCount
-            break
-          case 'blue':
-            if (parsedCount > blueMin) blueMin = parsedCount
-            break
-        }
-      })
-    })
-
-    return { gameNumber, redMin, greenMin, blueMin }
-  })
-
-  const ignoreZero = val => (val === 0 ? 1 : val)
-
-  return gameResults.reduce(
-    (acc, cur) => acc + ignoreZero(cur.redMin) * ignoreZero(cur.greenMin) * ignoreZero(cur.blueMin),
-    0
+const maxCount = (arr, color) =>
+  Math.max(
+    ...arr
+      .flat()
+      .filter(cube => cube.color === color)
+      .map(cube => parseInt(cube.count))
   )
-}
 
 const partA = fileName => {
   const gameResults = parseInput(fileName).map(game => {
@@ -56,10 +24,7 @@ const partA = fileName => {
 
     const splitGame = game.split(': ')
 
-    const [_, gameNumber] = splitGame[0].split(' ')
-    const cubeSets = splitGame[1].split('; ')
-
-    cubeSets.forEach(set => {
+    splitGame[1].split('; ').forEach(set => {
       set.split(', ').forEach(cube => {
         const [count, color] = cube.split(' ')
         switch (color) {
@@ -76,10 +41,31 @@ const partA = fileName => {
       })
     })
 
-    return { gameNumber, possible }
+    return { gameNumber: splitGame[0].split(' ')[1], possible }
   })
 
   return gameResults.reduce((acc, cur) => acc + (cur.possible ? parseInt(cur.gameNumber) : 0), 0)
+}
+
+const partB = fileName => {
+  const gameResults = parseInput(fileName).map(game => {
+    const splitGame = game.split(': ')
+    const parsedSets = splitGame[1].split('; ').map(set =>
+      set.split(', ').map(cube => {
+        const [count, color] = cube.split(' ')
+        return { color, count }
+      })
+    )
+
+    return {
+      gameNumber: splitGame[0].split(' ')[1],
+      redMax: maxCount(parsedSets, 'red'),
+      greenMax: maxCount(parsedSets, 'green'),
+      blueMax: maxCount(parsedSets, 'blue')
+    }
+  })
+
+  return gameResults.reduce((acc, cur) => acc + cur.redMax * cur.greenMax * cur.blueMax, 0)
 }
 
 const process = (part, expectedAnswer, fn) => {
