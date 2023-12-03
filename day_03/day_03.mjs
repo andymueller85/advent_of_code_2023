@@ -95,6 +95,85 @@ const partA = fileName => {
   }, 0)
 }
 
+const getNumber = (grid, rowNum, colNum) => {
+  let columnCursor = colNum
+  let lowerIndex = colNum
+  let upperIndex = colNum
+
+  while (columnCursor >= 0 && isDigit(grid[rowNum][columnCursor])) {
+    lowerIndex = columnCursor
+    columnCursor--
+  }
+
+  columnCursor = colNum
+  while (columnCursor <= grid[rowNum].length && isDigit(grid[rowNum][columnCursor])) {
+    upperIndex = columnCursor
+    columnCursor++
+  }
+
+  let number = ''
+  for (let i = lowerIndex; i <= upperIndex; i++) {
+    number += grid[rowNum][i]
+  }
+
+  return parseInt(number)
+}
+
+const gearRatio = (grid, rowNum, colNum) => {
+  const numbers = []
+
+  //above
+  if (isDigit(grid[rowNum - 1][colNum])) {
+    numbers.push(getNumber(grid, rowNum - 1, colNum))
+  } else {
+    if (isDigit(grid[rowNum - 1][colNum - 1])) {
+      numbers.push(getNumber(grid, rowNum - 1, colNum - 1))
+    }
+    if (isDigit(grid[rowNum - 1][colNum + 1])) {
+      numbers.push(getNumber(grid, rowNum - 1, colNum + 1))
+    }
+  }
+
+  // adjacent
+  if (isDigit(grid[rowNum][colNum - 1])) {
+    numbers.push(getNumber(grid, rowNum, colNum - 1))
+  }
+  if (isDigit(grid[rowNum][colNum + 1])) {
+    numbers.push(getNumber(grid, rowNum, colNum + 1))
+  }
+
+  // below
+  if (isDigit(grid[rowNum + 1][colNum])) {
+    numbers.push(getNumber(grid, rowNum + 1, colNum))
+  } else {
+    if (isDigit(grid[rowNum + 1][colNum - 1])) {
+      numbers.push(getNumber(grid, rowNum + 1, colNum - 1))
+    }
+    if (isDigit(grid[rowNum + 1][colNum + 1])) {
+      numbers.push(getNumber(grid, rowNum + 1, colNum + 1))
+    }
+  }
+
+  if (numbers.length === 2) {
+    return numbers.reduce((acc, cur) => acc * parseInt(cur), 1)
+  }
+
+  return 0
+}
+
+const partB = fileName => {
+  const rawRows = parseInput(fileName)
+  const schematic = rawRows.map(rawRow => rawRow.split(''))
+
+  return schematic.reduce((rowAcc, curRow, rowI) => {
+    const rowGears = curRow.reduce((colAcc, val, colI) => {
+      return colAcc + (val === '*' ? gearRatio(schematic, rowI, colI) : 0)
+    }, 0)
+
+    return rowAcc + rowGears
+  }, 0)
+}
+
 const process = (part, expectedAnswer, fn) => {
   const sampleAnswer = fn('./day_03/sample_input.txt')
 
@@ -107,3 +186,4 @@ const process = (part, expectedAnswer, fn) => {
 }
 
 process('A', 4361, partA)
+process('B', 467835, partB)
