@@ -24,6 +24,13 @@
       "name": "Day 3",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/day_03/day_03.mjs"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Day 4",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/day_04/day_04.mjs"
     }
   ]
 }
