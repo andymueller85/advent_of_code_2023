@@ -14,7 +14,7 @@ const parseRow = rawRow => {
   const winners = parsedTicketNumbers.filter(num => parsedWinningNumbers.includes(num))
   const cardNumber = parseInt(splitOnWS(rawCardNumber)[1])
 
-  return { parsedTicketNumbers, parsedWinningNumbers, winners, cardNumber }
+  return { winners, cardNumber }
 }
 
 const splitOnWS = str => str.split(/\s/g).filter(s => s !== '')
