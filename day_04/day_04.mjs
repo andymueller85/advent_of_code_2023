@@ -6,40 +6,41 @@ const parseInput = fileName =>
     .split(/\r?\n/)
     .filter(d => d)
 
+const parseRow = rawRow => {
+  const [rawCard, rawWinningNumbers] = rawRow.split(' | ')
+  const [rawCardNumber, rawTicketNumbers] = rawCard.split(': ')
+  const parsedTicketNumbers = splitOnWS(rawTicketNumbers)
+  const parsedWinningNumbers = splitOnWS(rawWinningNumbers)
+  const winners = parsedTicketNumbers.filter(num => parsedWinningNumbers.includes(num))
+  const cardNumber = parseInt(splitOnWS(rawCardNumber)[1])
+
+  return { parsedTicketNumbers, parsedWinningNumbers, winners, cardNumber }
+}
+
 const splitOnWS = str => str.split(/\s/g).filter(s => s !== '')
 
 const partA = fileName =>
-  parseInput(fileName).reduce((acc, rawRow) => {
-    const [rawCard, rawWinningNumbers] = rawRow.split(' | ')
-    const [_, rawTicketNumbers] = rawCard.split(': ')
-    const parsedTicketNumbers = splitOnWS(rawTicketNumbers)
-    const parsedWinningNumbers = splitOnWS(rawWinningNumbers)
-    const winners = parsedTicketNumbers.filter(num => parsedWinningNumbers.includes(num))
-
-    return acc + Math.floor(2 ** (winners.length - 1))
-  }, 0)
+  parseInput(fileName).reduce(
+    (acc, rawRow) => acc + Math.floor(2 ** (parseRow(rawRow).winners.length - 1)),
+    0
+  )
 
 const partB = fileName => {
   const rawRows = parseInput(fileName)
-
-  const ticketMap = {}
-  for (let i = 1; i <= rawRows.length; i++) {
-    ticketMap[i] = { numCards: 1, winners: 0 }
-  }
+  const ticketMap = rawRows.reduce(
+    (acc, _, i) => ({ ...acc, [i + 1]: { numCards: 1, winners: 0 } }),
+    {}
+  )
 
   rawRows.forEach(rawRow => {
-    const [rawCard, rawWinningNumbers] = rawRow.split(' | ')
-    const [rawCardNumber, rawTicketNumbers] = rawCard.split(': ')
-    const parsedTicketNumbers = splitOnWS(rawTicketNumbers)
-    const parsedWinningNumbers = splitOnWS(rawWinningNumbers)
-    const winners = parsedTicketNumbers.filter(num => parsedWinningNumbers.includes(num))
-    const cardNumber = parseInt(splitOnWS(rawCardNumber)[1])
+    const { cardNumber, winners } = parseRow(rawRow)
 
     ticketMap[cardNumber].winners = winners.length
     for (let i = cardNumber + 1; i <= cardNumber + winners.length; i++) {
       ticketMap[i].numCards += ticketMap[cardNumber].numCards
     }
   })
+
   return Object.values(ticketMap).reduce((acc, cur) => acc + cur.numCards, 0)
 }
 
