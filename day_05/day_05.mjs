@@ -69,7 +69,6 @@ const partB = fileName => {
   seedPairs.forEach((pair, pairNum) => {
     let thisPairAnswer = 0
 
-    let i = 0
     for (let seed = pair.start; seed < pair.start + pair.length; seed++) {
       let nextNumber = parseInt(seed)
 
@@ -100,10 +99,10 @@ const partB = fileName => {
         answer = thisPairAnswer
       }
 
+      const i = seed - pair.start
       if (i !== 0 && i % 1000000 === 0) {
-        console.log({ pairNum, i: `${i / 1000000} million`, thisPairAnswer })
+        console.log({ pairNum, i: `${i / 1000000} million`, thisPairAnswer, answer })
       }
-      i++
     }
 
     console.log(`Pair ${pairNum} answer`, thisPairAnswer)
@@ -111,7 +110,7 @@ const partB = fileName => {
     thisPairAnswer = 0
   })
 
-  // first group answer: 1445869985
+  // Got the right answer in about 12 hours: 1240035
   return answer
 }
 
