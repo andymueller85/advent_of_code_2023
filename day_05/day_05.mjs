@@ -22,7 +22,7 @@ const partA = fileName => {
   let ranges = []
   let locationNumbers = []
 
-  seeds.forEach(seed => {
+  seeds.forEach((seed, i) => {
     let nextNumber = parseInt(seed)
     maps.forEach(map => {
       map.forEach(([destinationRangeStart, sourceRangeStart, rangeLength]) => {
@@ -51,8 +51,6 @@ const partA = fileName => {
 const partB = fileName => {
   const { seeds, maps } = parseInput(fileName)
   let ranges = []
-  let lowestPerPair = []
-  let answer = 0
 
   const seedPairs = []
   let seedPairHolder = {}
@@ -66,14 +64,13 @@ const partB = fileName => {
     }
   })
 
-  seedPairs.forEach((pair, i) => {
-    let expandedSeeds = []
-    for (let j = pair.start; j < pair.start + pair.length; j++) {
-      expandedSeeds.push(j)
-    }
+  let answer = Number.MAX_SAFE_INTEGER
 
+  seedPairs.forEach((pair, pairNum) => {
     let thisPairAnswer = 0
-    expandedSeeds.forEach((seed, i, arr) => {
+
+    let i = 0
+    for (let seed = pair.start; seed < pair.start + pair.length; seed++) {
       let nextNumber = parseInt(seed)
 
       maps.forEach(map => {
@@ -98,15 +95,24 @@ const partB = fileName => {
       if (thisPairAnswer === 0 || nextNumber < thisPairAnswer) {
         thisPairAnswer = nextNumber
       }
-    })
 
-    lowestPerPair.push(thisPairAnswer)
+      if (thisPairAnswer < answer) {
+        answer = thisPairAnswer
+      }
+
+      if (i !== 0 && i % 1000000 === 0) {
+        console.log({ pairNum, i: `${i / 1000000} million`, thisPairAnswer })
+      }
+      i++
+    }
+
+    console.log(`Pair ${pairNum} answer`, thisPairAnswer)
+    console.log('Overall answer', answer)
     thisPairAnswer = 0
-    expandedSeeds = []
   })
 
   // first group answer: 1445869985
-  return Math.min(...lowestPerPair)
+  return answer
 }
 
 const process = (part, expectedAnswer, fn) => {
