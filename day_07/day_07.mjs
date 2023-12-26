@@ -8,47 +8,49 @@ const parseInput = fileName =>
     .map(l => l.split(' '))
     .map(([hand, rank]) => [hand.split(''), parseInt(rank)])
 
-const getKey = (hand, card, cardName) =>
-  hand.some(c => c === card) && { [cardName]: hand.filter(c => c === card).length }
+const getKey = (hand, card) =>
+  hand.some(c => c === card) && { [card]: hand.filter(c => c === card).length }
 
-const partA = fileName => {
-  const ranks = {
-    A: 13,
-    K: 12,
-    Q: 11,
-    J: 10,
-    T: 9,
-    9: 8,
-    8: 7,
-    7: 6,
-    6: 5,
-    5: 4,
-    4: 3,
-    3: 2,
-    2: 1
-  }
-
-  const sortFn = ([handA], [handB]) => {
+const sort =
+  ranks =>
+  ([handA], [handB]) => {
     const index = handA.findIndex((card, i) => card !== handB[i])
     return ranks[handA[index]] - ranks[handB[index]]
   }
 
-  const getCounts = hand => ({
-    ...getKey(hand, 'A', 'aces'),
-    ...getKey(hand, 'K', 'kings'),
-    ...getKey(hand, 'Q', 'queens'),
-    ...getKey(hand, 'J', 'jacks'),
-    ...getKey(hand, 'T', 'tens'),
-    ...getKey(hand, '9', 'nines'),
-    ...getKey(hand, '8', 'eights'),
-    ...getKey(hand, '7', 'sevens'),
-    ...getKey(hand, '6', 'sixes'),
-    ...getKey(hand, '5', 'fives'),
-    ...getKey(hand, '4', 'fours'),
-    ...getKey(hand, '3', 'threes'),
-    ...getKey(hand, '2', 'twos')
-  })
+const getCounts = hand => ({
+  ...getKey(hand, 'A'),
+  ...getKey(hand, 'K'),
+  ...getKey(hand, 'Q'),
+  ...getKey(hand, 'J'),
+  ...getKey(hand, 'T'),
+  ...getKey(hand, '9'),
+  ...getKey(hand, '8'),
+  ...getKey(hand, '7'),
+  ...getKey(hand, '6'),
+  ...getKey(hand, '5'),
+  ...getKey(hand, '4'),
+  ...getKey(hand, '3'),
+  ...getKey(hand, '2')
+})
 
+const ranks = {
+  A: 14,
+  K: 13,
+  Q: 12,
+  J: 11,
+  T: 10,
+  9: 9,
+  8: 8,
+  7: 7,
+  6: 6,
+  5: 5,
+  4: 4,
+  3: 3,
+  2: 2
+}
+
+const partA = fileName => {
   const isFiveOfAKind = hand => Object.keys(getCounts(hand)).length === 1
 
   const isFourOfAKind = hand => {
@@ -86,6 +88,8 @@ const partA = fileName => {
   const isHighCard = hand => Object.keys(getCounts(hand)).length === 5
 
   const hands = parseInput(fileName)
+  const sortFn = sort(ranks)
+
   return [
     ...hands.filter(([hand]) => isHighCard(hand)).sort(sortFn),
     ...hands.filter(([hand]) => isPair(hand)).sort(sortFn),
@@ -98,55 +102,18 @@ const partA = fileName => {
 }
 
 const partB = fileName => {
-  const ranks = {
-    A: 13,
-    K: 12,
-    Q: 11,
-    T: 10,
-    9: 9,
-    8: 8,
-    7: 7,
-    6: 6,
-    5: 5,
-    4: 4,
-    3: 3,
-    2: 2,
-    J: 1
-  }
-
-  const sortFn = ([handA], [handB]) => {
-    const index = handA.findIndex((card, i) => card !== handB[i])
-    return ranks[handA[index]] - ranks[handB[index]]
-  }
-
-  const getCounts = hand => ({
-    ...getKey(hand, 'A', 'aces'),
-    ...getKey(hand, 'K', 'kings'),
-    ...getKey(hand, 'Q', 'queens'),
-    ...getKey(hand, 'T', 'tens'),
-    ...getKey(hand, '9', 'nines'),
-    ...getKey(hand, '8', 'eights'),
-    ...getKey(hand, '7', 'sevens'),
-    ...getKey(hand, '6', 'sixes'),
-    ...getKey(hand, '5', 'fives'),
-    ...getKey(hand, '4', 'fours'),
-    ...getKey(hand, '3', 'threes'),
-    ...getKey(hand, '2', 'twos'),
-    ...getKey(hand, 'J', 'jokers')
-  })
-
   const isFiveOfAKind = hand => {
     const counts = getCounts(hand)
-    const jokerCount = counts.jokers || 0
-    const { jokers, ...countsWithoutJokers } = counts
+    const { J, ...countsWithoutJokers } = counts
+    const jokerCount = J || 0
 
     return jokerCount == 5 || Object.values(countsWithoutJokers).some(v => v + jokerCount === 5)
   }
 
   const isFourOfAKind = hand => {
     const counts = getCounts(hand)
-    const jokerCount = counts.jokers || 0
-    const { jokers, ...countsWithoutJokers } = counts
+    const { J, ...countsWithoutJokers } = counts
+    const jokerCount = J || 0
     const values = Object.values(countsWithoutJokers)
 
     return !isFiveOfAKind(hand) && values.some(v => v + jokerCount === 4)
@@ -154,10 +121,10 @@ const partB = fileName => {
 
   const isFullHouse = hand => {
     const counts = getCounts(hand)
-    const { jokers, ...countsWithoutJokers } = counts
+    const { J, ...countsWithoutJokers } = counts
     const keys = Object.keys(countsWithoutJokers)
     const values = Object.values(countsWithoutJokers)
-    const jokerCount = counts.jokers || 0
+    const jokerCount = J || 0
 
     return (
       !isFiveOfAKind(hand) &&
@@ -169,9 +136,9 @@ const partB = fileName => {
 
   const isThreeOfAKind = hand => {
     const counts = getCounts(hand)
-    const { jokers, ...countsWithoutJokers } = counts
+    const { J, ...countsWithoutJokers } = counts
     const values = Object.values(countsWithoutJokers)
-    const jokerCount = counts.jokers || 0
+    const jokerCount = J || 0
 
     return (
       !isFullHouse(hand) &&
@@ -183,10 +150,9 @@ const partB = fileName => {
 
   const isTwoPair = hand => {
     const counts = getCounts(hand)
-    const { jokers, ...countsWithoutJokers } = counts
-
+    const { J, ...countsWithoutJokers } = counts
     const values = Object.values(countsWithoutJokers)
-    const jokerCount = counts.jokers || 0
+    const jokerCount = J || 0
 
     return (
       !isThreeOfAKind(hand) &&
@@ -201,8 +167,8 @@ const partB = fileName => {
 
   const isPair = hand => {
     const counts = getCounts(hand)
-    const { jokers, ...countsWithoutJokers } = counts
-    const jokerCount = counts.jokers || 0
+    const { J, ...countsWithoutJokers } = counts
+    const jokerCount = J || 0
 
     return (
       !isTwoPair(hand) &&
@@ -223,6 +189,7 @@ const partB = fileName => {
     !isFiveOfAKind(hand)
 
   const hands = parseInput(fileName)
+  const sortFn = sort({ ...ranks, J: 1 })
 
   return [
     ...hands.filter(([hand]) => isHighCard(hand)).sort(sortFn),
