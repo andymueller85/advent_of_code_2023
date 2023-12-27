@@ -15,7 +15,7 @@ const parseInput = fileName => {
 
       return {
         ...acc,
-        ...{ [key]: { L: rawLeft.replace('(', ''), R: rawRight.replace(')', '') } }
+        [key]: { L: rawLeft.replace('(', ''), R: rawRight.replace(')', '') }
       }
     }, {})
 
@@ -50,32 +50,31 @@ const partBSlow = fileName => {
 const partB2 = fileName => {
   // much faster. find LCM of each path's count
   const { leftRightArr, map } = parseInput(fileName)
-  const gcd = (a, b) => (a ? gcd(b % a, a) : b)
+  const gcd = (a, b) => (a > 0 ? gcd(b % a, a) : b)
   const lcm = (a, b) => (a * b) / gcd(a, b)
+  const getCount = k => {
+    let i = 0
+    for (; !k.endsWith('Z'); i++) {
+      k = map[k][leftRightArr[i % leftRightArr.length]]
+    }
+    return i
+  }
 
   return Object.keys(map)
     .filter(k => k.endsWith('A'))
-    .map(k => {
-      let i = 0
-
-      for (; !k.endsWith('Z'); i++) {
-        k = map[k][leftRightArr[i % leftRightArr.length]]
-      }
-
-      return i
-    })
+    .map(getCount)
     .reduce(lcm)
 }
 
 const process = (part, expectedAnswer, fn, sampleFile) => {
-  const sampleAnswer = fn(sampleFile, fn)
+  const sampleAnswer = fn(sampleFile)
 
   console.log(`part ${part} sample answer`, sampleAnswer)
   if (sampleAnswer !== expectedAnswer) {
     throw new Error(`part ${part} sample answer should be ${expectedAnswer}`)
   }
 
-  console.log(`part ${part} real answer`, fn('./day_08/input.txt', fn))
+  console.log(`part ${part} real answer`, fn('./day_08/input.txt'))
 }
 
 process('A', 2, partA, './day_08/sample_input.txt')
