@@ -7,7 +7,7 @@ const parseInput = fileName =>
     .filter(d => d)
     .map(l => l.split(' ').map(x => parseInt(x)))
 
-const partA = fileName =>
+const extrapolate = (fileName, reducer) =>
   parseInput(fileName).reduce((sum, line) => {
     const spawnedArrays = [line]
 
@@ -19,8 +19,11 @@ const partA = fileName =>
       )
     }
 
-    return sum + spawnedArrays.reverse().reduce((lineSum, cur) => cur[cur.length - 1] + lineSum, 0)
+    return sum + spawnedArrays.reverse().reduce(reducer, 0)
   }, 0)
+
+const partA = fileName => extrapolate(fileName, (a, b) => b[b.length - 1] + a)
+const partB = fileName => extrapolate(fileName, (a, b) => b[0] - a)
 
 const process = (part, expectedAnswer, fn) => {
   const sampleAnswer = fn('./day_09/sample_input.txt', fn)
@@ -34,3 +37,4 @@ const process = (part, expectedAnswer, fn) => {
 }
 
 process('A', 114, partA)
+process('B', 2, partB)
