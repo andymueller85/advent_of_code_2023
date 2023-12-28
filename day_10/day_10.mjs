@@ -120,12 +120,8 @@ const partB = fileName => {
   makeLoop(grid, row, col, cameFrom)
 
   return grid.reduce(
-    (rowAcc, curRow, curRowI) =>
-      rowAcc +
-      curRow.reduce(
-        (colAcc, _, curColI) => colAcc + (isInsideLoop(grid, curRowI, curColI) ? 1 : 0),
-        0
-      ),
+    (acc, curRow, curRowI) =>
+      acc + curRow.filter((_, curColI) => isInsideLoop(grid, curRowI, curColI)).length,
     0
   )
 }
