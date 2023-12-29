@@ -7,17 +7,6 @@ const parseInput = fileName =>
     .filter(d => d)
     .map(l => l.split(''))
 
-const swapXY = grid => grid[0].map((_, i) => grid.map(r => r[i]))
-
-const expandRows = grid => {
-  let expandedGrid = []
-  grid.forEach(r => {
-    expandedGrid.push(r)
-    if (r.every(s => s === '.')) expandedGrid.push(r)
-  })
-  return expandedGrid
-}
-
 const getGalaxyCoordinates = grid => {
   const coordinates = []
   for (let r = 0; r < grid.length; r++) {
@@ -28,28 +17,48 @@ const getGalaxyCoordinates = grid => {
   return coordinates
 }
 
-const getDistance = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1])
+const getDistance = (a, b, grid, expansionFactor) => {
+  const reducer = (acc, cur) => acc + (cur.every(s => s === '.') ? expansionFactor : 1)
+  const vertDistance = grid.slice(a[0] + 1, b[0] + 1).reduce(reducer, 0)
 
-const getDistances = coordinates =>
-  coordinates.slice(1).reduce((acc, cur) => acc + getDistance(coordinates[0], cur), 0)
+  const start = Math.min(a[1], b[1]) + 1
+  const end = Math.max(a[1], b[1]) + 1
 
-const partA = fileName => {
-  const grid = parseInput(fileName)
-  const expandedGrid = swapXY(expandRows(swapXY(expandRows(grid))))
-  const galaxies = getGalaxyCoordinates(expandedGrid)
+  const horDistance = grid[0]
+    .slice(start, end)
+    .map((_, cIndex) => grid.map((_, rIndex) => grid[rIndex][cIndex + start]))
+    .reduce(reducer, 0)
 
-  return galaxies.reduce((acc, _, i) => acc + getDistances(galaxies.slice(i)), 0)
+  return vertDistance + horDistance
 }
 
-const process = (part, expectedAnswer, fn) => {
-  const sampleAnswer = fn('./day_11/sample_input.txt')
+const getDistances = (coordinates, expansionFactor, grid) =>
+  coordinates.slice(1).reduce((acc, cur) => {
+    return acc + getDistance(coordinates[0], cur, grid, expansionFactor)
+  }, 0)
+
+const caclulateCosmicExpansion = (fileName, expansionFactor) => {
+  const grid = parseInput(fileName)
+
+  return getGalaxyCoordinates(grid).reduce(
+    (acc, _, i, arr) => acc + getDistances(arr.slice(i), expansionFactor, grid),
+    0
+  )
+}
+
+const process = (part, expectedAnswer, expansionFactor) => {
+  const sampleAnswer = caclulateCosmicExpansion('./day_11/sample_input.txt', expansionFactor)
 
   console.log(`part ${part} sample answer`, sampleAnswer)
   if (sampleAnswer !== expectedAnswer) {
     throw new Error(`part ${part} sample answer should be ${expectedAnswer}`)
   }
 
-  console.log(`part ${part} real answer`, fn('./day_11/input.txt'))
+  console.log(
+    `part ${part} real answer`,
+    caclulateCosmicExpansion('./day_11/input.txt', expansionFactor)
+  )
 }
 
-process('A', 374, partA)
+process('A', 374, 2)
+process('B', 82000210, 1000000)
