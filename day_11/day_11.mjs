@@ -9,11 +9,13 @@ const parseInput = fileName =>
 
 const getGalaxyCoordinates = grid => {
   const coordinates = []
-  for (let r = 0; r < grid.length; r++) {
-    for (let c = 0; c < grid[0].length; c++) {
-      if (grid[r][c] === '#') coordinates.push([r, c])
-    }
-  }
+
+  grid.forEach((r, rowI) => {
+    r.forEach((c, colI) => {
+      if (c === '#') coordinates.push([rowI, colI])
+    })
+  })
+
   return coordinates
 }
 
@@ -33,9 +35,9 @@ const getDistance = (a, b, grid, expansionFactor) => {
 }
 
 const getDistances = (coordinates, expansionFactor, grid) =>
-  coordinates.slice(1).reduce((acc, cur) => {
-    return acc + getDistance(coordinates[0], cur, grid, expansionFactor)
-  }, 0)
+  coordinates
+    .slice(1)
+    .reduce((acc, cur) => acc + getDistance(coordinates[0], cur, grid, expansionFactor), 0)
 
 const caclulateCosmicExpansion = (fileName, expansionFactor) => {
   const grid = parseInput(fileName)
