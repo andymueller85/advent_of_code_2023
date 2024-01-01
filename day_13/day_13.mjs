@@ -39,15 +39,58 @@ const findMirror = pattern => {
   return 0
 }
 
+const findMirrorSmudged = (pattern, r, c) => {
+  const udpatedPattern = JSON.parse(JSON.stringify(pattern))
+  udpatedPattern[r][c] = udpatedPattern[r][c] === '#' ? '.' : '#'
+
+  for (let i = 1; i < udpatedPattern.length; i++) {
+    const upperPattern = udpatedPattern.slice(0, i)
+    const lowerPattern = udpatedPattern.slice(i)
+
+    const diff = upperPattern.length - lowerPattern.length
+    if (
+      ((diff > 0 && r >= diff) || (diff <= 0 && r < pattern.length + diff)) &&
+      isReflection(upperPattern, lowerPattern)
+    ) {
+      return i
+    }
+  }
+
+  return 0
+}
+
 const partA = fileName => {
   const patterns = parseInput(fileName)
 
-  return patterns.reduce((acc, pattern, i, arr) => {
+  return patterns.reduce((acc, pattern) => {
     const horizontalMirror = findMirror(pattern)
     const verticalMirror = findMirror(swapXY(pattern))
     return acc + horizontalMirror * 100 + verticalMirror
   }, 0)
 }
+
+const partB = fileName =>
+  parseInput(fileName).reduce((acc, pattern) => {
+    for (let r = 0; r < pattern.length; r++) {
+      for (let c = 0; c < pattern[0].length; c++) {
+        const horizontalMirror = findMirrorSmudged(pattern, r, c)
+
+        if (horizontalMirror > 0) {
+          return acc + horizontalMirror * 100
+        }
+      }
+    }
+
+    for (let r = 0; r < pattern[0].length; r++) {
+      for (let c = 0; c < pattern.length; c++) {
+        const verticalMirror = findMirrorSmudged(swapXY(pattern), r, c)
+
+        if (verticalMirror > 0) {
+          return acc + verticalMirror
+        }
+      }
+    }
+  }, 0)
 
 const process = (part, expectedAnswer, fn) => {
   const sampleAnswer = fn('./day_13/sample_input.txt', fn)
@@ -61,3 +104,4 @@ const process = (part, expectedAnswer, fn) => {
 }
 
 process('A', 405, partA)
+process('B', 400, partB)
