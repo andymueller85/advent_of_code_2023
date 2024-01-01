@@ -12,8 +12,8 @@ const parseInput = fileName =>
 
 const fitsPattern = (testStrArr, pattern) => {
   let groups = []
-
   let hashCount = 0
+
   testStrArr.forEach(char => {
     if (char !== '#' && hashCount > 0) {
       groups.push(hashCount)
@@ -25,14 +25,11 @@ const fitsPattern = (testStrArr, pattern) => {
   return groups.length === pattern.length && groups.every((g, i) => g === pattern[i])
 }
 
-const partA = fileName => {
-  const input = parseInput(fileName)
-
-  return input.reduce((acc, cur) => {
-    const { damaged, info } = cur
+const partA = fileName =>
+  parseInput(fileName).reduce((acc, { damaged, info }) => {
     const qCount = damaged.filter(d => d === '?').length
-
     let iterationCount = 0
+
     for (let i = 0; i < 2 ** qCount; i++) {
       const binary = i.toString(2).padStart(qCount, '0').split('')
 
@@ -46,7 +43,71 @@ const partA = fileName => {
 
       if (fitsPattern(testStrArr, info)) iterationCount++
     }
+
     return acc + iterationCount
+  }, 0)
+
+const cache = {}
+const trimStart = str =>
+  str.startsWith('.')
+    ? str
+        .split(/(?<=\.)(?=[^.])/)
+        .slice(1)
+        .join('')
+    : str
+
+const findCombinations = (row, groups) => {
+  const line = row + ' ' + groups.join(',')
+  if (cache[line]) {
+    return cache[line]
+  }
+
+  if (groups.length === 0) {
+    return row.includes('#') ? 0 : 1
+  }
+
+  if (row.length - groups.reduce((a, b) => a + b) - groups.length + 1 < 0) {
+    return 0
+  }
+
+  const damagedOrUnknown = !row.slice(0, groups[0]).includes('.')
+
+  if (row.length === groups[0]) {
+    return damagedOrUnknown ? 1 : 0
+  }
+
+  const count =
+    (row[0] != '#' ? findCombinations(trimStart(row.slice(1)), groups) : 0) +
+    (damagedOrUnknown && row[groups[0]] != '#'
+      ? findCombinations(trimStart(row.slice(groups[0] + 1)), groups.slice(1))
+      : 0)
+
+  cache[line] = count
+
+  return count
+}
+
+const partB = fileName => {
+  const input = parseInput(fileName)
+
+  const expandedInput = input.map(({ damaged, info }) => {
+    let expandedDamaged = []
+    let expandedInfo = []
+
+    for (let i = 0; i < 5; i++) {
+      expandedDamaged.push(...damaged)
+      expandedInfo.push(...info)
+      if (i < 4) {
+        expandedDamaged.push('?')
+      }
+    }
+
+    return { damaged: expandedDamaged, info: expandedInfo }
+  })
+
+  // shamelessly borrowed answer from https://github.com/hiimjustin000/advent-of-code/blob/master/2023/day12/part2.js
+  return expandedInput.reduce((acc, { damaged, info }) => {
+    return acc + findCombinations(damaged.join(''), info)
   }, 0)
 }
 
@@ -61,4 +122,5 @@ const process = (part, expectedAnswer, fn) => {
   console.log(`part ${part} real answer`, fn('./day_12/input.txt', fn))
 }
 
-process('A', 21, partA)
+// process('A', 21, partA)
+process('B', 525152, partB)
