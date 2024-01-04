@@ -8,35 +8,20 @@ const parseInput = fileName =>
     .map(r => r.split(''))
 
 const shiftNorth = col => {
-  let cursor = 0
-  let nextCubePos = col.findIndex(a => a === '#')
-  if (nextCubePos === -1) {
-    nextCubePos = col.length
-  }
-  let columnLoad = 0
-  let go = true
-  let lastTime = false
+  const cubeIndexes = [-1]
+  col.forEach((a, i) => {
+    if (a === '#') cubeIndexes.push(i)
+  })
 
-  while (go) {
-    if (lastTime) go = false
-    const roundStoneCount = col.slice(cursor, nextCubePos).filter(a => a === 'O').length
-
-    for (let i = 0; i < roundStoneCount; i++) {
-      columnLoad += col.length - cursor - i
-    }
-
-    const nextCubeOffset = col.slice(nextCubePos + 1).findIndex(a => a === '#')
-
-    cursor = nextCubePos + 1
-    if (nextCubeOffset === -1) {
-      nextCubePos = col.length
-      lastTime = true
-    } else {
-      nextCubePos += 1 + nextCubeOffset
-    }
-  }
-
-  return columnLoad
+  return cubeIndexes.reduce(
+    (acc, cur, i, arr) =>
+      acc +
+      Array.from(
+        { length: col.slice(Math.max(cur, 0), arr[i + 1]).filter(a => a === 'O').length },
+        (_, i) => i
+      ).reduce((a, b) => a + col.length - (cur + 1) - b, 0),
+    0
+  )
 }
 
 const partA = fileName => {
