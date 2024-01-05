@@ -60,13 +60,10 @@ const partB = fileName => {
 
   for (let i = 0; i < ONE_BILLION; i++) {
     grid = rollGrid(grid)
-
     const cacheKey = grid.flat().join('')
 
     if (cache[cacheKey]) {
-      const loopLength = i - cache[cacheKey]
-
-      for (let i = 0; i < (ONE_BILLION - (i + 1)) % loopLength; i++) {
+      for (let j = 0; j < (ONE_BILLION - (j + 1)) % (i - cache[cacheKey]); j++) {
         grid = rollGrid(grid)
       }
 
