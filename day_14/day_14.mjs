@@ -49,16 +49,16 @@ const rollGrid = grid => rollEast(rollSouth(rollWest(rollNorth(grid))))
 const partA = fileName => calculateLoad(rollNorth(parseInput(fileName)))
 
 const partB = fileName => {
-  const ONE_BILLION = 1000000000
+  const ONE_BILLION_MINUS_ONE = 999999999
   const cache = {}
   let grid = parseInput(fileName)
 
-  for (let i = 0; i < ONE_BILLION; i++) {
+  for (let i = 0; i < ONE_BILLION_MINUS_ONE; i++) {
     grid = rollGrid(grid)
     const cacheKey = grid.flat().join('')
 
     if (cache[cacheKey]) {
-      for (let j = 0; j < (ONE_BILLION - i - 1) % (i - cache[cacheKey]); j++) {
+      for (let j = 0; j < (ONE_BILLION_MINUS_ONE - i) % (i - cache[cacheKey]); j++) {
         grid = rollGrid(grid)
       }
 
