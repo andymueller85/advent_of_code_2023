@@ -25,8 +25,7 @@ const calculateLoad = grid => {
   }, 0)
 }
 
-const swapXY = grid =>
-  Array.from({ length: grid[0].length }, (_, i) => i).map(c => grid.map(r => r[c]))
+const swapXY = grid => Array.from({ length: grid[0].length }).map((_, i) => grid.map(r => r[i]))
 
 const roll = col => {
   const sections = col
