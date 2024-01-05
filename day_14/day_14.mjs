@@ -10,23 +10,9 @@ const parseInput = fileName =>
 const columnLoad = col => {
   let columnLoad = 0
 
-  const sections = col
-    .join('')
-    .split('#')
-    .map(s => s.split(''))
-
-  sections.forEach((section, sectionI) => {
-    if (section.includes('O')) {
-      const idx = section.findIndex(s => s !== 'O')
-      const stoneCount = idx === -1 ? section.length : idx
-      const firstIndex =
-        sectionI === 0
-          ? 0
-          : sections.reduce((acc, cur, i) => acc + (i < sectionI ? cur.length : 0), 0) + sectionI
-
-      for (let i = 0; i < stoneCount; i++) {
-        columnLoad += col.length - (firstIndex + i)
-      }
+  col.forEach((a, i) => {
+    if (a === 'O') {
+      columnLoad += col.length - i
     }
   })
 
@@ -78,26 +64,32 @@ const rollSouth = grid => {
 
 const rollWest = grid => grid.map(roll)
 
+const rollGrid = grid => rollEast(rollSouth(rollWest(rollNorth(grid))))
+
 const partA = fileName => calculateLoad(rollNorth(parseInput(fileName)))
 
 const partB = fileName => {
+  const ONE_BILLION = 1000000000
+  const cache = {}
   let grid = parseInput(fileName)
 
-  for (let i = 0; i < 1000000000; i++) {
-    grid = rollNorth(grid)
-    grid = rollWest(grid)
-    grid = rollSouth(grid)
-    grid = rollEast(grid)
+  for (let i = 0; i < ONE_BILLION; i++) {
+    grid = rollGrid(grid)
 
-    if (i % 10000000 === 0) {
-      console.log('index', i)
-      grid.forEach(r => console.log(r.join('')))
-      console.log('load', calculateLoad(grid))
-      console.log('\n')
+    const cacheKey = grid.flat().join('')
+
+    if (cache[cacheKey]) {
+      const loopLength = i - cache[cacheKey]
+
+      for (let i = 0; i < (ONE_BILLION - (i + 1)) % loopLength; i++) {
+        grid = rollGrid(grid)
+      }
+
+      return calculateLoad(grid)
     }
-  }
 
-  return calculateLoad(grid)
+    cache[cacheKey] = i
+  }
 }
 
 const process = (part, expectedAnswer, fn) => {
