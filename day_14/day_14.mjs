@@ -7,23 +7,9 @@ const parseInput = fileName =>
     .filter(d => d)
     .map(r => r.split(''))
 
-const columnLoad = col => {
-  let columnLoad = 0
+const columnLoad = col => col.reduce((acc, cur, i) => acc + (cur === 'O' ? col.length - i : 0), 0)
 
-  col.forEach((a, i) => {
-    if (a === 'O') {
-      columnLoad += col.length - i
-    }
-  })
-
-  return columnLoad
-}
-
-const calculateLoad = grid => {
-  return swapXY(grid).reduce((acc, cur) => {
-    return acc + columnLoad(cur)
-  }, 0)
-}
+const calculateLoad = grid => swapXY(grid).reduce((acc, cur) => acc + columnLoad(cur), 0)
 
 const swapXY = grid => Array.from({ length: grid[0].length }).map((_, i) => grid.map(r => r[i]))
 
