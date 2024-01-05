@@ -13,19 +13,14 @@ const calculateLoad = grid => swapXY(grid).reduce((acc, cur) => acc + columnLoad
 
 const swapXY = grid => Array.from({ length: grid[0].length }).map((_, i) => grid.map(r => r[i]))
 
-const roll = col => {
-  const sections = col
+const roll = col =>
+  col
     .join('')
     .split('#')
     .map(s => s.split(''))
-
-  const rolledSections = sections.map(s => {
-    const stoneCount = s.filter(a => a === 'O').length
-    return 'O'.repeat(stoneCount) + '.'.repeat(s.length - stoneCount)
-  })
-
-  return rolledSections.join('#').split('')
-}
+    .map(s => s.sort().reverse().join(''))
+    .join('#')
+    .split('')
 
 const rollNorth = grid => {
   let columns = []
