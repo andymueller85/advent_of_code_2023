@@ -1,31 +1,18 @@
 import * as fs from 'fs'
 
 const parseInput = fileName => fs.readFileSync(fileName, 'utf8').trim().split(',')
-
-const hash = str => {
-  let val = 0
-
-  str.split('').forEach(char => {
-    val += char.charCodeAt(0)
-    val *= 17
-    val %= 256
-  })
-
-  return val
-}
+const hash = str => str.split('').reduce((acc, cur) => ((acc + cur.charCodeAt(0)) * 17) % 256, 0)
 
 const partA = fileName => parseInput(fileName).reduce((acc, cur) => acc + hash(cur), 0)
 
 const partB = fileName => {
-  const input = parseInput(fileName)
   const boxes = {}
 
-  input.forEach(step => {
+  parseInput(fileName).forEach(step => {
     const label = step.slice(
       0,
       step.split('').findIndex(s => ['-', '='].includes(s))
     )
-
     const box = hash(label)
     const lenses = boxes[box]
 
@@ -51,15 +38,15 @@ const partB = fileName => {
     }
   })
 
-  return Object.entries(boxes).reduce((sum, [boxNum, lenses]) => {
-    return (
+  return Object.entries(boxes).reduce(
+    (sum, [boxNum, lenses]) =>
       sum +
       lenses.reduce(
         (acc, { focalLength }, i) => acc + (parseInt(boxNum) + 1) * (i + 1) * focalLength,
         0
-      )
-    )
-  }, 0)
+      ),
+    0
+  )
 }
 
 const process = (part, expectedAnswer, fn) => {
