@@ -11,24 +11,16 @@ const parseInput = fileName =>
 const nextCoordinates = (dir, r, c, grid) => {
   switch (dir) {
     case 'E':
-      if (c < grid[0].length - 1) {
-        return [r, c + 1]
-      }
+      if (c < grid[0].length - 1) return [r, c + 1]
       break
     case 'S':
-      if (r < grid.length - 1) {
-        return [r + 1, c]
-      }
+      if (r < grid.length - 1) return [r + 1, c]
       break
     case 'W':
-      if (c > 0) {
-        return [r, c - 1]
-      }
+      if (c > 0) return [r, c - 1]
       break
     case 'N':
-      if (r > 0) {
-        return [r - 1, c]
-      }
+      if (r > 0) return [r - 1, c]
       break
   }
   return undefined
@@ -83,9 +75,8 @@ const nextHeadings = (dir, char) => {
   }
 }
 
-const partA = fileName => {
-  const grid = parseInput(fileName)
-  let paths = { [crypto.randomUUID()]: [{ dir: 'E', row: 0, col: -1 }] }
+const traverse = (grid, dir, row, col) => {
+  const paths = { [crypto.randomUUID()]: [{ dir, row, col }] }
   const energizedTiles = []
   let energizedTilesLength = 0
   let nextEnergizedTilesLength = 1
@@ -129,7 +120,6 @@ const partA = fileName => {
     })
 
     nextEnergizedTilesLength = energizedTiles.length
-    // count++
   }
 
   return grid.reduce(
@@ -144,6 +134,23 @@ const partA = fileName => {
   )
 }
 
+const partA = fileName => traverse(parseInput(fileName), 'E', 0, -1)
+
+const partB = fileName => {
+  const grid = parseInput(fileName)
+  let counts = []
+
+  for (let i = 0; i < grid.length; i++) {
+    counts.push(traverse(grid, 'E', i, -1))
+    counts.push(traverse(grid, 'W', i, grid.length))
+    counts.push(traverse(grid, 'S', -1, i))
+    counts.push(traverse(grid, 'N', grid.length, i))
+    console.log(i, Math.max(...counts))
+  }
+
+  return Math.max(...counts)
+}
+
 const process = (part, expectedAnswer, fn) => {
   const sampleAnswer = fn('./day_16/sample_input.txt', fn)
 
@@ -156,3 +163,4 @@ const process = (part, expectedAnswer, fn) => {
 }
 
 process('A', 46, partA)
+process('B', 51, partB)
