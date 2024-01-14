@@ -152,14 +152,14 @@ const partB = fileName => {
 }
 
 const process = (part, expectedAnswer, fn) => {
-  const sampleAnswer = fn('./day_16/sample_input.txt', fn)
+  const sampleAnswer = fn('./day_16/sample_input.txt')
 
   console.log(`part ${part} sample answer`, sampleAnswer)
   if (sampleAnswer !== expectedAnswer) {
     throw new Error(`part ${part} sample answer should be ${expectedAnswer}`)
   }
 
-  console.log(`part ${part} real answer`, fn('./day_16/input.txt', fn))
+  console.log(`part ${part} real answer`, fn('./day_16/input.txt'))
 }
 
 process('A', 46, partA)
