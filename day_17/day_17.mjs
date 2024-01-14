@@ -20,45 +20,42 @@ const findPath = (fileName, min, max) => {
       return
     }
     graph[neighbor].heat = heat
-    const neighbors = Object.keys(graph[neighbor].neighbors)
 
-    for (const key of neighbors) {
+    Object.keys(graph[neighbor].neighbors).forEach(key => {
       walk(key, heat + graph[neighbor].neighbors[key])
-    }
+    })
   }
+
+  const neighborSum = (length, fn) => Array.from({ length }, fn).reduce((a, b) => a + b)
+  const key = (dir, x, y) => `${dir}(${x},${y})`
+  const H = 'horizontal'
+  const V = 'vertical'
 
   input.forEach((r, rI) => {
     r.forEach((_, cI) => {
-      const vertical = (graph[`vertical(${cI},${rI})`] = { heat: Infinity, neighbors: {} })
-      const horizontal = (graph[`horizontal(${cI},${rI})`] = { heat: Infinity, neighbors: {} })
+      const vertical = (graph[key(V, cI, rI)] = { heat: Infinity, neighbors: {} })
+      const horizontal = (graph[key(H, cI, rI)] = { heat: Infinity, neighbors: {} })
       for (let i = min; i <= max; i++) {
         if (rI + i >= 0 && rI + i < input.length)
-          vertical.neighbors[`horizontal(${cI},${rI + i})`] = Array(i)
-            .fill(0)
-            .reduce((a, _, j) => a + input[rI + j + 1][cI], 0)
+          vertical.neighbors[key(H, cI, rI + i)] = neighborSum(i, (_, j) => input[rI + j + 1][cI])
         if (rI - i >= 0 && rI - i < input.length)
-          vertical.neighbors[`horizontal(${cI},${rI - i})`] = Array(i)
-            .fill(0)
-            .reduce((a, _, j) => a + input[rI - j - 1][cI], 0)
+          vertical.neighbors[key(H, cI, rI - i)] = neighborSum(i, (_, j) => input[rI - j - 1][cI])
         if (cI + i >= 0 && cI + i < input[0].length)
-          horizontal.neighbors[`vertical(${cI + i},${rI})`] = Array(i)
-            .fill(0)
-            .reduce((a, _, j) => a + input[rI][cI + j + 1], 0)
+          horizontal.neighbors[key(V, cI + i, rI)] = neighborSum(i, (_, j) => input[rI][cI + j + 1])
         if (cI - i >= 0 && cI - i < input[0].length)
-          horizontal.neighbors[`vertical(${cI - i},${rI})`] = Array(i)
-            .fill(0)
-            .reduce((a, _, j) => a + input[rI][cI - j - 1], 0)
+          horizontal.neighbors[key(V, cI - i, rI)] = neighborSum(i, (_, j) => input[rI][cI - j - 1])
       }
     })
   })
 
   const startingNeighbors = {
-    ...graph['horizontal(0,0)'].neighbors,
-    ...graph['vertical(0,0)'].neighbors
+    ...graph[key(H, 0, 0)].neighbors,
+    ...graph[key(V, 0, 0)].neighbors
   }
-  for (const startingNeighbor of Object.keys(startingNeighbors)) {
-    walk(startingNeighbor, startingNeighbors[startingNeighbor])
-  }
+
+  Object.keys(startingNeighbors).forEach(neighbor => {
+    walk(neighbor, startingNeighbors[neighbor])
+  })
 
   return result
 }
